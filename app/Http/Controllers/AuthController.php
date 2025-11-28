@@ -16,14 +16,14 @@ class AuthController extends Controller
 
     public function register(Request $request){
         $validator = validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:users',
+            'name' => 'required|string|min:8|max:255|unique:users',
             'email' => 'required|string|email|max:64|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'first_name' => 'required|string|max:255',
-            'middle_name' => 'sometimes|string|max:32',
-            'last_name' => 'required|string|min:2|max:255',
-            'address' => 'required|string|max:500',
-            'phone_number' => 'required|string|max:20',
+            'first_name' => 'required|string|min:2|max:32',
+            'middle_name' => 'sometimes|string|min:2|max:32',
+            'last_name' => 'required|string|min:2|max:32',
+            'address' => 'required|string|min:2|max:500',
+            'phone_number' => 'required|string|max:11',
         ]);
         
         if($validator->fails()){
@@ -34,8 +34,8 @@ class AuthController extends Controller
             ],400);
         }
 
-        $user_input = $validator->safe()->only(["name","email","password"]);
-        $profile_input = $validator->safe()->except(["name","email","password"]);
+        $user_input = $validator->safe()->only(["name","email","password","role"]);
+        $profile_input = $validator->safe()->except(["name","email","password","role"]);
 
         $user = User::create($user_input);
         $user->profile()->create($profile_input);
@@ -65,7 +65,7 @@ class AuthController extends Controller
         if(!auth()->attempt($validator->validated())){
             return response()->json([
                 "ok" => false,
-                "message" => "Invalid Credentials!"
+                "message" => "Please check your Username and Password!"
             ],401);
         }
 

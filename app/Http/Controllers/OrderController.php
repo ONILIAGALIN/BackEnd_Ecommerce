@@ -9,8 +9,7 @@ use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
-    public function checkout(Request $request)
-{
+    public function checkout(Request $request){
     $user = auth()->user();
     $cartItems = Cart::with('product')->where('user_id', $user->id)->get();
 
@@ -48,22 +47,21 @@ class OrderController extends Controller
         'message' => 'Order created successfully',
         'data' => $order
     ], 201);
-}
+    }
 
     public function index() {
-        $user = auth()->user();
-    
-   
+    $user = auth()->user();
     $orders = $user->role === 'admin' 
-        ? Order::with('items.product','user')->get() 
-        : Order::with('items.product', 'user')->where('user_id', $user->id)->get();
+        ? Order::with(['items.product', 'user.profile'])->get() 
+        : Order::with(['items.product', 'user.profile'])
+               ->where('user_id', $user->id)
+               ->get();
 
     return response()->json([
         'ok' => true,
         'data' => $orders
     ], 200);
     }
-
     public function show(Order $order) {
         $user = auth()->user();
 
@@ -80,12 +78,9 @@ class OrderController extends Controller
         ], 200);
     }
 
-        public function update(Request $request, Order $order)
-    {
+        public function update(Request $request, Order $order){
         $user = auth()->user();
-
         $isAdmin = $user->role === 'admin';
-
         if (!$isAdmin) {
             return response()->json([
                 'ok' => false,

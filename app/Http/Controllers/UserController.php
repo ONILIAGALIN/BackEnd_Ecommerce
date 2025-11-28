@@ -29,7 +29,7 @@ class UserController extends Controller
 
     public function store(Request $request){
         $validator = validator::make($request->all(), [
-            'name' => 'required|string|max:255|unique:users',
+            'name' => 'required|string|max:255|min:8|unique:users',
             'email' => 'required|string|email|max:64|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'first_name' => 'required|string|min:2|max:32',
@@ -47,8 +47,8 @@ class UserController extends Controller
             ],400);
         }
 
-        $user_input = $validator->safe()->only(["name","email","password"]);
-        $profile_input = $validator->safe()->except(["name","email","password"]);
+        $user_input = $validator->safe()->only(["name","email","password", "role"]);
+        $profile_input = $validator->safe()->except(["name","email","password","role"]);
 
         $user = User::create($user_input);
         $user->profile()->create($profile_input);
@@ -87,12 +87,13 @@ class UserController extends Controller
      */
     public function update(Request $request, User $user){
         $validator = validator($request->all(), [
-            "username" => "sometimes|string|max:255|unique:users,username,".$user->id,
+            "name" => "sometimes|string|min:8|max:255|unique:users,name,".$user->id,
             "email" => "sometimes|string|email|max:64|unique:users,email,".$user->id,
             "password" => "sometimes|string|min:8|confirmed",
             "first_name" => "sometimes|string|min:2|max:32",
             "middle_name" => "sometimes|string|max:32",
             "last_name" => "sometimes|string|min:2|max:32",
+            "role" => "sometimes|in:admin,customer",
             "address" => "sometimes|string|max:255",
             "phone_number" => "sometimes|string|max:11",
         ]);
@@ -104,8 +105,8 @@ class UserController extends Controller
                 "errors" => $validator->errors()
             ],400);
         }
-        $user_input = $validator->safe()->only(["username","email","password"]);
-        $profile_input = $validator->safe()->except(["username","email","password"]);
+        $user_input = $validator->safe()->only(["name","email","password","role"]);
+        $profile_input = $validator->safe()->except(["name","email","password", "role"]);
         $user->update($user_input);
         $user->profile()->update($profile_input);
         $user->profile;
