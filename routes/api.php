@@ -38,3 +38,9 @@ Route::middleware('auth:api')->prefix("orders")->group(function () {
     Route::patch("/{order}", [App\Http\Controllers\OrderController::class, "update"]);
     Route::delete("/{order}", [App\Http\Controllers\OrderController::class, "destroy"]);
 });
+
+Route::get('/test', function() {
+    return ['status' => 'Backend is working!'];
+});
+
+
